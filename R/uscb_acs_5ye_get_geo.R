@@ -9,14 +9,12 @@
 #' @return A vector of names.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- "../geodimension/data/us/"
 #' ua <- uscb_acs_5ye(folder = folder)
-#' laa <- ua %>% get_legal_and_administrative_areas()
+#' laa <- ua |> get_legal_and_administrative_areas()
 #'
 #' @export
 get_legal_and_administrative_areas <- function(ua) {
@@ -41,14 +39,12 @@ get_legal_and_administrative_areas.uscb_acs_5ye<- function(ua) {
 #' @return A vector of names.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- "../geodimension/data/us/"
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #'
 #' @export
 get_statistical_areas <- function(ua) {
@@ -76,19 +72,17 @@ get_statistical_areas.uscb_acs_5ye<- function(ua) {
 #' @return A vector of integers.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- "../geodimension/data/us/"
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #'
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #' \donttest{
-#' y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6])
+#' y <- ua |> get_available_years_in_the_web(geodatabase = sa[6])
 #' }
 #' @export
 get_available_years_in_the_web <- function(ua, geodatabase) {
@@ -133,20 +127,18 @@ get_available_years_in_the_web.uscb_acs_5ye<- function(ua, geodatabase) {
 #' @return A vector of integers.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- system.file("extdata", package = "geogenr")
 #' folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #'
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #'
-#' y <- ua %>% get_available_years_downloaded(geodatabase = sa[6])
+#' y <- ua |> get_available_years_downloaded(geodatabase = sa[6])
 #'
 #' @export
 get_available_years_downloaded <- function(ua, geodatabase, folder = NULL) {
@@ -199,21 +191,19 @@ get_available_years_downloaded.uscb_acs_5ye<- function(ua, geodatabase, folder =
 #' @return A vector of integers.
 #'
 #' @family data collection functions
-#' @seealso
 #'
 #' @examples
-#' library(tidyr)
 #'
 #' folder <- "../geodimension/data/us/"
 #' ua <- uscb_acs_5ye(folder = folder)
-#' sa <- ua %>% get_statistical_areas()
+#' sa <- ua |> get_statistical_areas()
 #'
 #' # sa[6]
 #' # [1] "New England City and Town Area Division"
 #' \donttest{
-#' y <- ua %>% get_available_years_in_the_web(geodatabase = sa[6])
+#' y <- ua |> get_available_years_in_the_web(geodatabase = sa[6])
 #' \dontrun{
-#' y_res <- ua %>% download_geodatabases(geodatabase = sa[6], years = y)
+#' y_res <- ua |> download_geodatabases(geodatabase = sa[6], years = y)
 #' }
 #' }
 #' @export
