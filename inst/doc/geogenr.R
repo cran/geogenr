@@ -4,116 +4,116 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ----setup, echo = FALSE------------------------------------------------------
-library(geomultistar)
-
 ## -----------------------------------------------------------------------------
 library(geogenr)
 
-ua <- uscb_acs_5ye(folder = "../data/us/")
+dir <- system.file("extdata/acs_5yr", package = "geogenr")
 
-(laa <- ua |> get_legal_and_administrative_areas())
-
-(sa <- ua |> get_statistical_areas())
-
-## ----eval = FALSE-------------------------------------------------------------
-#  sa[6]
-#  #>  [1] "New England City and Town Area Division"
-#  
-#  (y <- ua |> get_available_years_in_the_web(geodatabase = sa[6]))
-#  #>  [1] 2013 2014 2015 2016 2017 2018
-#  
-#  (y_res <- ua |> download_geodatabases(geodatabase = sa[6], years = 2014:2015))
-#  #>  [1] 2014 2015
-#  
+ac <- acs_5yr(dir)
 
 ## -----------------------------------------------------------------------------
-folder <- system.file("extdata", package = "geogenr")
-folder <- stringr::str_replace_all(paste(folder, "/", ""), " ", "")
-ua <- uscb_acs_5ye(folder = folder)
+ac |>
+  get_area_groups()
+ac |>
+  get_areas(group = "Legal and Administrative Areas")
+
+ac |>
+  get_area_years(area = "Alaska Native Regional Corporation")
 
 ## -----------------------------------------------------------------------------
-sa[6]
+ac <- ac |>
+  select_area_files("Alaska Native Regional Corporation", 2020:2021)
 
-(y <- ua |> get_available_years_downloaded(geodatabase = sa[6]))
+files <- ac |>
+  download_selected_files(unzip = FALSE)
 
-## -----------------------------------------------------------------------------
-ul <- uscb_layer(uscb_acs_metadata, ua = ua, geodatabase = sa[6], year = 2015)
-(layers <- ul |> get_layer_names())
-
-## -----------------------------------------------------------------------------
-layers[3]
-
-ul <- ul |> get_layer(layers[3])
-(layer_groups <- ul |> get_layer_group_names())
-
-## -----------------------------------------------------------------------------
-layer_groups[2]
-
-ul <- ul |> get_layer_group(layer_groups[2])
+## ----echo=FALSE---------------------------------------------------------------
+dir <- tempdir()
+source_dir <- system.file("extdata/acs_5yr", package = "geogenr")
+files <- list.files(source_dir, "*.zip", full.names = TRUE)
+file.copy(from = files, to = dir, overwrite = TRUE)
+ac <- acs_5yr(dir)
 
 ## -----------------------------------------------------------------------------
-ul$layer_group_columns
+files <- ac |>
+  unzip_files()
 
 ## -----------------------------------------------------------------------------
-ft <- ul |> get_flat_table(remove_geometry = FALSE)
+ac |>
+  get_available_areas()
 
-names(ft)
-
-nrow(ft)
-
-## -----------------------------------------------------------------------------
-gms <- ul |> get_geomultistar()
-
-## ----results = "asis", echo = FALSE-------------------------------------------
-pander::pandoc.table(head(gms$dimension$when), split.table = Inf)
-pander::pandoc.table(head(gms$dimension$where), split.table = Inf)
-pander::pandoc.table(head(gms$dimension$what), split.table = Inf)
-pander::pandoc.table(head(gms$fact$detailed_race), split.table = Inf)
+ac |>
+  get_available_area_years(area = "Alaska Native Regional Corporation")
 
 ## -----------------------------------------------------------------------------
-uf <- uscb_folder(ul)
+ac |>
+  get_available_area_topics("Alaska Native Regional Corporation")
 
 ## -----------------------------------------------------------------------------
-cft <- uf |> get_common_flat_table()
-
-nrow(cft)
-
-## -----------------------------------------------------------------------------
-cgms <- uf |> get_common_geomultistar()
-
-## ----results = "asis", echo = FALSE-------------------------------------------
-pander::pandoc.table(head(cgms$dimension$when), split.table = Inf)
+act <- ac |>
+  as_acs_5yr_topic("Alaska Native Regional Corporation",
+                   topic = "X01 Age And Sex")
 
 ## -----------------------------------------------------------------------------
-library(geomultistar)
+act |>
+  get_report_names()
 
-cgms <- cgms  |>
-  define_geoattribute(
-    attribute = c("name"),
-    from_attribute = "geoid"
+## -----------------------------------------------------------------------------
+geo <- act |>
+  as_acs_5yr_geo()
+
+## -----------------------------------------------------------------------------
+metadata <- geo |>
+  get_metadata()
+
+metadata
+
+## -----------------------------------------------------------------------------
+metadata <-
+  dplyr::filter(
+    metadata,
+    item2 == "Female" &
+      group == "People Who Are American Indian And Alaska Native Alone" &
+      measure == "estimate"
   )
 
 ## -----------------------------------------------------------------------------
-library(starschemar)
+geo2 <- geo |>
+  set_metadata(metadata)
 
-gdqr <- dimensional_query(cgms) |>
-  select_dimension(name = "where",
-                   attributes = c("name")) |>
-  select_dimension(name = "what",
-                   attributes = c("short_name", "demographic_race_spec")) |>
-  select_fact(name = "detailed_race",
-              measures = c("estimate")) |>
-  filter_dimension(name = "when", year == "2015") |>
-  filter_dimension(name = "what", demographic_race_spec == "Asian alone") |>
-  run_geoquery()
-
-
-## ----results = "asis", echo = FALSE-------------------------------------------
-pander::pandoc.table(head(gdqr, 12), split.table = Inf)
+geo2 |>
+  get_metadata()
 
 ## -----------------------------------------------------------------------------
-class(gdqr)
+geo_layer <- geo2 |> 
+  get_geo_layer()
 
-plot(gdqr[,"estimate"])
+geo_layer$faiana21vs20 <- 100 * (geo_layer$V1389 - geo_layer$V0671) / geo_layer$V0671
+plot(geo_layer[, "faiana21vs20"])
+
+## -----------------------------------------------------------------------------
+dir <- tempdir()
+file <- geo |>
+  as_GeoPackage(dir)
+
+sf::st_layers(file)
+
+## -----------------------------------------------------------------------------
+st <- act |>
+  as_star_database()
+
+## -----------------------------------------------------------------------------
+st_dm <- st |>
+  rolap::as_dm_class(pk_facts = FALSE)
+st_dm |> 
+  dm::dm_draw(rankdir = "LR", view_type = "all")
+
+## -----------------------------------------------------------------------------
+l_db <- st |>
+  rolap::as_tibble_list()
+
+names <- sort(names(l_db))
+for (name in names){
+  cat(sprintf("name: %s, %d rows\n", name, nrow(l_db[[name]])))
+}
 
