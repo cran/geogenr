@@ -1,3 +1,8 @@
+# geogenr 2.0.1
+* Data export function in `geomultistar` format: `as_geomultistar()`.
+* Modify the cph field of the description.
+* Include logo on website.
+
 # geogenr 2.0.0
 * New data model.
 * Functions to consult, select and download the available information.

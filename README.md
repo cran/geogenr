@@ -10,9 +10,8 @@ status](https://www.r-pkg.org/badges/version/geogenr)](https://CRAN.R-project.or
 [![R-CMD-check](https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/josesamos/geogenr/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/josesamos/geogenr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/josesamos/geogenr?branch=master)
+[![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr)
 <!-- badges: end -->
-
-<!-- [![Downloads](http://cranlogs.r-pkg.org/badges/geogenr?color=brightgreen)](https://www.r-pkg.org:443/pkg/geogenr) -->
 
 The [American Community Survey
 (ACS)](https://www.census.gov/programs-surveys/acs) offers geodatabases
@@ -150,8 +149,9 @@ act |>
 ```
 
 We can export the reports of the selected topic to various formats such
-as `GeoPackage`, also `flat_table` or `star_schema` of the `rolap`
-package. In this case we are going to obtain a `GeoPackage`.
+as `GeoPackage`, also `flat_table` or `star_database` of the
+[`rolap`](https://cran.r-project.org/package=rolap) package. In this
+case we are going to obtain a `GeoPackage`.
 
 ``` r
 geo <- act |>
@@ -218,7 +218,7 @@ geo_layer <- geo2 |>
   get_geo_layer()
 
 geo_layer$faiana21vs20 <- 100 * (geo_layer$V1389 - geo_layer$V0671) / geo_layer$V0671
-plot(geo_layer[, "faiana21vs20"])
+plot(sf::st_shift_longitude(geo_layer[, "faiana21vs20"]))
 ```
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
